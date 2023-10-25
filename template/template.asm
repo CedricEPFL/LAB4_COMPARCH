@@ -60,13 +60,22 @@ main:
 
 ; BEGIN: clear_leds
 clear_leds:
-
+    stw, zero, LEDS
+    stw, zero, 4(LEDS)
+    stw, zero, 8(LEDS)
+    ret
 ; END: clear_leds
 
 
 ; BEGIN: set_pixel
 set_pixel:
-
+    add t0, LEDS, a0        ; t0 = LEDS + x
+    ldb t1, 0(t0)           ; on recupere le byte lié a l'adresse [LEDS + x]
+    addi t2, zero, 1        ; 
+    sll t3, t2, a1
+    or t4, t1, t3 
+    stb t4, 0(t0)
+    ret
 ; END: set_pixel
 
 
