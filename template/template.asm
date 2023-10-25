@@ -71,10 +71,10 @@ clear_leds:
 set_pixel:
     add t0, LEDS, a0        ; t0 = LEDS + x
     ldb t1, 0(t0)           ; on recupere le byte lié a l'adresse [LEDS + x]
-    addi t2, zero, 1        ; 
-    sll t3, t2, a1
-    or t4, t1, t3 
-    stb t4, 0(t0)
+    addi t2, zero, 1        ; initialise t2 a 1
+    sll t2, t2, a1          ; decale le 1 de a1 bits
+    or t2, t1, t2           ; met le bit a 1 
+    stb t2, 0(t0)           ; store le byte
     ret
 ; END: set_pixel
 
