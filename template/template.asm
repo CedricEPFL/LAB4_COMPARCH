@@ -75,7 +75,7 @@ clear_leds:
 
 ; BEGIN: set_pixel
 set_pixel:
-    addi t0, a0, LEDS        ; t0 = LEDS + x
+    addi t0, a0, LEDS        ; t0 = LEDS + x xx
     ldw t1, 0(t0)           ; on recupere le byte lié a l'adresse [LEDS + x]
     addi t2, zero, 1        ; initialise t2 a 1
     sll t2, t2, a1          ; decale le 1 de a1 (y) bits
