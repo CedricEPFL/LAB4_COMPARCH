@@ -54,27 +54,33 @@ addi    sp, zero, LEDS
 ;     This procedure should never return.
 main:
     ; TODO: Finish this procedure.
-
-    ret
+    call clear_leds
+    addi a0, zero, 0
+    addi a1, zero, 0
+    call set_pixel
+    addi a0, zero, 4
+    addi a1, zero, 4
+    call set_pixel
+    br main
 
 
 ; BEGIN: clear_leds
 clear_leds:
-    stw, zero, LEDS
-    stw, zero, 4(LEDS)
-    stw, zero, 8(LEDS)
+    stw zero, LEDS(zero)
+    stw zero, 4 + LEDS(zero)
+    stw zero, 8 + LEDS(zero)
     ret
 ; END: clear_leds
 
 
 ; BEGIN: set_pixel
 set_pixel:
-    add t0, LEDS, a0        ; t0 = LEDS + x
-    ldb t1, 0(t0)           ; on recupere le byte lié a l'adresse [LEDS + x]
+    addi t0, a0, LEDS        ; t0 = LEDS + x
+    ldw t1, 0(t0)           ; on recupere le byte lié a l'adresse [LEDS + x]
     addi t2, zero, 1        ; initialise t2 a 1
-    sll t2, t2, a1          ; decale le 1 de a1 bits
+    sll t2, t2, a1          ; decale le 1 de a1 (y) bits
     or t2, t1, t2           ; met le bit a 1 
-    stb t2, 0(t0)           ; store le byte
+    stw t2, 0(t0)           ; store le byte
     ret
 ; END: set_pixel
 
