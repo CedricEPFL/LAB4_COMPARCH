@@ -58,7 +58,7 @@ main:
     addi a0, zero, 0
     addi a1, zero, 0
     call set_pixel
-    addi a0, zero, 4
+    addi a0, zero, 5
     addi a1, zero, 4
     call set_pixel
     br main
@@ -75,12 +75,18 @@ clear_leds:
 
 ; BEGIN: set_pixel
 set_pixel:
-    addi t0, a0, LEDS        ; t0 = LEDS + x xx
-    ldw t1, 0(t0)           ; on recupere le byte lié a l'adresse [LEDS + x]
-    addi t2, zero, 1        ; initialise t2 a 1
-    sll t2, t2, a1          ; decale le 1 de a1 (y) bits
-    or t2, t1, t2           ; met le bit a 1 
-    stw t2, 0(t0)           ; store le byte
+    addi t0, a0, LEDS           ; t0 = x + LEDS
+    ldw t1, 0(t0)               ; on recupere le word lie a l'adresse [LEDS + x]
+    addi t2, zero, 3            ; initialise t2 a 3
+    and t3, t2, a0              ; x[4]
+    slli t3, t3, 3              ; x[4]*8
+    add t3, t3, a1              ; x[4]*8 + y
+
+
+    addi t4, zero, 1            ; initialise t4 a 1
+    sll t4, t4, t3              ; decale le 1 de x[4]*8 + y bits
+    or t4, t1, t4               ; met le bit (x,y) a 1 
+    stw t4, 0(t0)               ; store le word
     ret
 ; END: set_pixel
 
