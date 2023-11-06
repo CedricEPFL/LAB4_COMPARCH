@@ -212,6 +212,35 @@ draw_array:
 
 ; BEGIN: move_snake
 move_snake:
+    ldw t6,HEAD_X(zero)
+    ldw t7,HEAD_Y(zero)
+
+    slli t6, t6, 3
+    add t6, t7, t6  ;addresse dans le GSA calculee
+    slli t6, t6, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+    ldw t7, GSA(t6) ;recupere la valeur de la head
+
+    addi t0,zero,DIR_RIGHT
+    beq t7,t0,right
+    addi t0,zero,DIR_LEFT
+    beq t7,t0,left
+    addi t0,zero,DIR_UP
+    beq t7,t0,up
+    addi t0,zero,DIR_DOWN
+    beq t7,t0,down
+
+
+    right:
+    left:
+    up:
+    down:
+
+    addi t0,zero,ARG_FED
+    beq 
+
+    change_tail:
+
+    ret
 
 ; END: move_snake
 
