@@ -117,6 +117,11 @@ hit_test:
 
 ; BEGIN: get_input
 get_input:
+    ldw t0,0(Buttons)   ;State of the Buttons
+    ldw t1,4(Buttons)   ;Falling edge detection
+    addi t2,zero,15   
+
+    ret
 
 ; END: get_input
 
