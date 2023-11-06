@@ -117,11 +117,89 @@ hit_test:
 
 ; BEGIN: get_input
 get_input:
-    ldw t0,0(Buttons)   ;State of the Buttons
-    ldw t1,4(Buttons)   ;Falling edge detection
-    addi t2,zero,15   
+    ldw t0,4 + Buttons(zero)   ;edgecapture
+    stw zero,4 + Buttons(zero)  ;clear edgecapture
 
+    andi t5,t0,0b10000  ;mask de checkpoint
+    srli t5,t5,4
+    andi t4,t0,0b1000   ;mask de right
+    srli t4,t4,3
+    andi t3,t0,0b100    ;mask de down
+    srli t3,t3,2
+    andi t2,t0,0b10     ;mask de up
+    srli t2,t2,1
+    andi t1,t0,1        ;mask de down
+
+    ldw t6,HEAD_X(zero)
+    ldw t7,HEAD_Y(zero)
+
+    slli t6, t6, 3
+    add t6, t7, t6  ;addresse dans le GSA calculee
+    slli t6, t6, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+    ldw t7, GSA(t6) ;recupere la valeur de la head
+
+    addi t0,zero,1  ;valeur 1
+    beq t5,t0,checkpoint
+    beq t4,t0,right
+    beq t3,t0,down
+    beq t2,t0,up
+    beq t1,t0,left
+
+
+    checkpoint:
+        addi v0,zero,BUTTON_CHECKPOINT
+        ret
+
+    right:
+        addi v0,zero,BUTTON_RIGHT
+
+        addi t5,zero,DIR_LEFT
+        beq t7,t5,opposite_direction    ;Si la direction actuelle est left
+
+        addi t4,zero,DIR_RIGHT ;valeur 4
+        stw GSA(t6),t4  ;update la direction de la head vers right
+        
+        ret
+
+    down:
+        addi v0,zero,BUTTON_DOWN
+
+        addi t5,zero,DIR_UP
+        beq t7,t5,opposite_direction    ;Si la direction actuelle est up
+
+        addi t3,zero,DIR_DOWN 
+        stw GSA(t6),t3
+        
+        ret
+
+    up:
+        addi v0,zero,BUTTON_UP
+
+        addi t5,zero,DIR_DOWN
+        beq t7,t5,opposite_direction    ;Si la direction actuelle est down
+
+        addi t2,zero,DIR_UP 
+        stw GSA(t6),t2
+        
+        ret
+
+    left:
+        addi v0,zero,BUTTON_LEFT
+
+        addi t5,zero,DIR_RIGHT
+        beq t7,t5,opposite_direction    ;Si la direction actuelle est right
+
+        addi t1,zero,DIR_LEFT 
+        stw GSA(t6),t1
+        ret
+
+    opposite_direction :
+        ret
+
+    addi v0,zero,0  ;le cas si c'est none
     ret
+
+    
 
 ; END: get_input
 
