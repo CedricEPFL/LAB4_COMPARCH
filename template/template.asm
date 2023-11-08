@@ -61,7 +61,9 @@ main:
     ldw zero,TAIL_Y(zero)
     addi t0, zero, DIR_RIGHT
     stw t0, GSA(zero)
-
+	
+	call clear_leds
+	call draw_array
     loop :
         call clear_leds
         call get_input
@@ -81,18 +83,18 @@ clear_leds:
 
 ; BEGIN: set_pixel
 set_pixel:
-    addi t0, a0, LEDS           ; t0 = x + LEDS
-    ldw t1, 0(t0)               ; on recupere le word lie a l'adresse [LEDS + x]
-    addi t2, zero, 3            ; initialise t2 a 3
-    and t3, t2, a0              ; x[4]
-    slli t3, t3, 3              ; x[4]*8
-    add t3, t3, a1              ; x[4]*8 + y
+    addi t2, a0, LEDS           ; t0 = x + LEDS
+    ldw t3, 0(t2)               ; on recupere le word lie a l'adresse [LEDS + x]
+    addi t4, zero, 3            ; initialise t2 a 3
+    and t5, t4, a0              ; x[4]
+    slli t5, t5, 3              ; x[4]*8
+    add t5, t5, a1              ; x[4]*8 + y
 
 
-    addi t4, zero, 1            ; initialise t4 a 1
-    sll t4, t4, t3              ; decale le 1 de x[4]*8 + y bits
-    or t4, t1, t4               ; met le bit (x,y) a 1 
-    stw t4, 0(t0)               ; store le word
+    addi t6, zero, 1            ; initialise t4 a 1
+    sll t6, t6, t5              ; decale le 1 de x[4]*8 + y bits
+    or t6, t3, t6               ; met le bit (x,y) a 1 
+    stw t6, 0(t2)               ; store le word
     ret
 ; END: set_pixel
 
@@ -152,6 +154,9 @@ get_input:
     beq t1,t0,left
 
 
+    addi v0,zero,0  ;le cas si c'est none
+    ret
+
     checkpoint:
         addi v0,zero,BUTTON_CHECKPOINT
         ret
@@ -202,8 +207,7 @@ get_input:
     opposite_direction :
         ret
 
-    addi v0,zero,0  ;le cas si c'est none
-    ret
+
 
     
 
@@ -212,7 +216,6 @@ get_input:
 
 ; BEGIN: draw_array
 draw_array:
-
 
     addi t5, zero, 1
 
@@ -229,8 +232,8 @@ draw_array:
             addi t6,zero,8
             beq t1,t6,reset_y       ;t1 (x) et t2 (y) parcourt tout le GSA
 
-            slli t3, t1, 3
-            add t3, t3, t2  ;addresse dans le GSA calculee
+            slli t3, t0, 3
+            add t3, t3, t1  ;addresse dans le GSA calculee
             slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
             ldw t3, GSA(t3) ;recupere la valeur du GSA a (x,y)
 
@@ -238,9 +241,17 @@ draw_array:
 
             add a0,t0, zero
             add a1,t1, zero
+
+			addi sp, sp, -4
+			stw ra, 0(sp)
             call set_pixel
+			ldw ra, 0(sp)
+			addi sp, sp, 4
+
+			br loop_y
 
         reset_y :   ;met a jour le y si on arrive au bout d'une colonne 
+            addi t5, zero, 1
             sub t1,zero,t5
             br loop_x
 
@@ -280,69 +291,80 @@ move_snake:
 
     right_head:
         addi t1,t1,1
-        ldw t1,HEAD_X(zero)
+        stw t1,HEAD_X(zero)
+        br suite
         
     left_head:
         sub t1,t1,t5
-        ldw t1,HEAD_X(zero)
+        stw t1,HEAD_X(zero)
+        br suite
     up_head:
         addi t2,t2,1
-        ldw t2,HEAD_Y(zero)
+        stw t2,HEAD_Y(zero)
+        br suite
     down_head:
         sub t2,t2,t5
+        stw t2,HEAD_Y(zero)
+        br suite
+
+
+    suite : 
+        ldw t1,HEAD_X(zero)
         ldw t2,HEAD_Y(zero)
 
-    ldw t1,HEAD_X(zero)
-    ldw t2,HEAD_Y(zero)
 
-
-    slli t3, t1, 3
-    add t3, t2, t3      ;addresse dans le GSA calculee
-    slli t3, t3, 2      ;multiplication par 4 car on travaille avec des words dans le GSA
-    stw t4, GSA(t3)     ; met a jour la nouvelle head
-
-
-    addi t0,zero,ARG_HUNGRY
-    beq a0,t0,change_tail       ; si a0 = 0 on supprime l'ancienne tail et on set la nouvelle
-
-
-
-    change_tail:
-        ldw t1,TAIL_X(zero)
-        ldw t2,TAIL_Y(zero)
         slli t3, t1, 3
-        add t3, t2, t3          ;addresse dans le GSA calculee
-        slli t3, t3, 2          ;multiplication par 4 car on travaille avec des words dans le GSA
-        ldw t4, GSA(t3)         ;recupere la valeur de la tail
+        add t3, t2, t3      ;addresse dans le GSA calculee
+        slli t3, t3, 2      ;multiplication par 4 car on travaille avec des words dans le GSA
+        stw t4, GSA(t3)     ; met a jour la nouvelle head
 
 
-        addi t0,zero,DIR_RIGHT
-        beq t4,t0,right_tail
-        addi t0,zero,DIR_LEFT
-        beq t4,t0,left_tail
-        addi t0,zero,DIR_UP
-        beq t4,t0,up_tail
-        addi t0,zero,DIR_DOWN
-        beq t4,t0,down_tail
+        addi t0,zero,ARG_HUNGRY
+        beq a0,t0,change_tail       ; si a0 = 0 on supprime l'ancienne tail et on set la nouvelle
+        ret
 
 
 
-        right_tail:
-            addi t1,t1,1
+        change_tail:
             ldw t1,TAIL_X(zero)
-            
-        left_tail:
-            sub t1,t1,t5
-            ldw t1,TAIL_X(zero)
-        up_tail:
-            addi t2,t2,1
             ldw t2,TAIL_Y(zero)
-        down_tail:
-            sub t2,t2,t5
-            ldw t2,TAIL_Y(zero)
+            slli t3, t1, 3
+            add t3, t2, t3          ;addresse dans le GSA calculee
+            slli t3, t3, 2          ;multiplication par 4 car on travaille avec des words dans le GSA
+            ldw t4, GSA(t3)         ;recupere la valeur de la tail
 
 
-    ret
+            addi t0,zero,DIR_RIGHT
+            beq t4,t0,right_tail
+            addi t0,zero,DIR_LEFT
+            beq t4,t0,left_tail
+            addi t0,zero,DIR_UP
+            beq t4,t0,up_tail
+            addi t0,zero,DIR_DOWN
+            beq t4,t0,down_tail
+
+
+
+            right_tail:
+                addi t1,t1,1
+                stw t1,TAIL_X(zero)
+                ret
+                
+            left_tail:
+                sub t1,t1,t5
+                stw t1,TAIL_X(zero)
+                ret
+            up_tail:
+                addi t2,t2,1
+                stw t2,TAIL_Y(zero)
+                ret
+            down_tail:
+                sub t2,t2,t5
+                stw t2,TAIL_Y(zero)
+                ret
+
+
+        
 
 ; END: move_snake
 
