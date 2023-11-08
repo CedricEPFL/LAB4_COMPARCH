@@ -15,3 +15,8 @@ oct. 30, 2023 1:28:53 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint noti
 INFOS: Unsupported notification method: $/setTrace
 oct. 30, 2023 1:29:16 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFOS: Unsupported notification method: $/setTrace
+2023.11.06 13:08:50 INFO  Started: Metals version 1.1.0 in folders 'C:\BA3\Comparch\LAB4\LAB4_COMPARCH' for client Visual Studio Code 1.83.1.
+2023.11.06 13:08:54 WARN  Build server is not auto-connectable.
+2023.11.06 13:08:54 WARN  no build tool detected in workspace 'C:\BA3\Comparch\LAB4\LAB4_COMPARCH'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+nov. 06, 2023 2:29:21 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFOS: Unsupported notification method: $/setTrace

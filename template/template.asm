@@ -218,17 +218,17 @@ move_snake:
     slli t3, t1, 3
     add t3, t2, t3  ;addresse dans le GSA calculee
     slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
-    ldw t3, GSA(t3) ;recupere la valeur de la head
+    ldw t4, GSA(t3) ;recupere la valeur de la head
 
     
     addi t0,zero,DIR_RIGHT
-    beq t3,t0,right
+    beq t4,t0,right
     addi t0,zero,DIR_LEFT
-    beq t3,t0,left
+    beq t4,t0,left
     addi t0,zero,DIR_UP
-    beq t3,t0,up
+    beq t4,t0,up
     addi t0,zero,DIR_DOWN
-    beq t3,t0,down
+    beq t4,t0,down
 
 
     right:
@@ -237,19 +237,61 @@ move_snake:
         
     left:
         subi t1,t1,1
-        ldw t1,HEAD_X - 1(zero)
+        ldw t1,HEAD_X(zero)
     up:
         addi t2,t2,1
-        ldw t2,HEAD_Y + 1(zero)
+        ldw t2,HEAD_Y(zero)
     down:
         subi t2,t2,1
-        ldw t2,HEAD_Y - 1(zero)
+        ldw t2,HEAD_Y(zero)
+
+    ldw t1,HEAD_X(zero)
+    ldw t2,HEAD_Y(zero)
+
+
+    slli t3, t1, 3
+    add t3, t2, t3      ;addresse dans le GSA calculee
+    slli t3, t3, 2      ;multiplication par 4 car on travaille avec des words dans le GSA
+    stw t4, GSA(t3)     ; met a jour la nouvelle head
+
 
     addi t0,zero,ARG_HUNGRY
-    beq a0,t0,change_tail
+    beq a0,t0,change_tail       ; si a0 = 0 on supprime l'ancienne tail et on set la nouvelle
+
+
 
     change_tail:
+        ldw t1,TAIL_X(zero)
+        ldw t2,TAIL_Y(zero)
+        slli t3, t1, 3
+        add t3, t2, t3          ;addresse dans le GSA calculee
+        slli t3, t3, 2          ;multiplication par 4 car on travaille avec des words dans le GSA
+        ldw t4, GSA(t3)         ;recupere la valeur de la tail
 
+
+        addi t0,zero,DIR_RIGHT
+        beq t4,t0,right
+        addi t0,zero,DIR_LEFT
+        beq t4,t0,left
+        addi t0,zero,DIR_UP
+        beq t4,t0,up
+        addi t0,zero,DIR_DOWN
+        beq t4,t0,down
+
+
+        right:
+            addi t1,t1,1
+            ldw t1,TAIL_X(zero)
+            
+        left:
+            subi t1,t1,1
+            ldw t1,TAIL_X(zero)
+        up:
+            addi t2,t2,1
+            ldw t2,TAIL_Y(zero)
+        down:
+            subi t2,t2,1
+            ldw t2,TAIL_Y(zero)
 
 
     ret
