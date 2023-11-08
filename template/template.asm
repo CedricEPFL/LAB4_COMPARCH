@@ -207,6 +207,41 @@ get_input:
 ; BEGIN: draw_array
 draw_array:
 
+    subi t0,zero,1
+    subi t1,zero,1
+
+    loop_x: ;boucle des x
+        addi t0,t0,1
+        addi t2,zero,12
+        beq t0,t2,end
+
+        loop_y :    ;boucle des y
+            addi t1,t1,1
+            addi t2,zero,8
+            beq t1,t2,reset_y       ;t1 (x) et t2 (y) parcourt tout le GSA
+
+            slli t3, t1, 3
+            add t3, t3, t2  ;addresse dans le GSA calculee
+            slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+            ldw t3, GSA(t3) ;recupere la valeur du GSA a (x,y)
+
+            beq t3,zero,loop_y  ;si il faut pas dessiner de pixel, on passe au suivant
+
+            ldw a0,t1
+            ldw a1,t2
+            set_pixel
+
+        reset_y :   ;met a jour le y si on arrive au bout d'une colonne 
+            subi t2,zero,1
+            br loop_x
+
+
+    
+
+    end :
+        ret
+
+
 ; END: draw_array
 
 
