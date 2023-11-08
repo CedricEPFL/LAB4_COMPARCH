@@ -54,14 +54,20 @@ addi    sp, zero, LEDS
 ;     This procedure should never return.
 main:
     ; TODO: Finish this procedure.
-    call clear_leds
-    addi a0, zero, 0
-    addi a1, zero, 0
-    call set_pixel
-    addi a0, zero, 5
-    addi a1, zero, 4
-    call set_pixel
-    br main
+
+    ldw zero,HEAD_X(zero)
+    ldw zero,HEAD_Y(zero)
+    ldw zero,TAIL_X(zero)
+    ldw zero,TAIL_Y(zero)
+    addi t0, zero, DIR_RIGHT
+    stw t0, GSA(zero)
+
+    loop :
+        call clear_leds
+        call get_input
+        call move_snake
+        call draw_array
+        br loop
 
 
 ; BEGIN: clear_leds
@@ -117,8 +123,8 @@ hit_test:
 
 ; BEGIN: get_input
 get_input:
-    ldw t0,4 + Buttons(zero)   ;edgecapture
-    stw zero,4 + Buttons(zero)  ;clear edgecapture
+    ldw t0,4 + BUTTONS(zero)   ;edgecapture
+    stw zero,4 + BUTTONS(zero)  ;clear edgecapture
 
     andi t5,t0,0b10000  ;mask de checkpoint
     srli t5,t5,4
@@ -156,8 +162,8 @@ get_input:
         addi t5,zero,DIR_LEFT
         beq t7,t5,opposite_direction    ;Si la direction actuelle est left
 
-        addi t4,zero,DIR_RIGHT ;valeur 4
-        stw GSA(t6),t4  ;update la direction de la head vers right
+        addi t4,zero,DIR_RIGHT          ;valeur 4
+        stw t4, GSA(t6)                 ;update la direction de la head vers right
         
         ret
 
@@ -168,7 +174,7 @@ get_input:
         beq t7,t5,opposite_direction    ;Si la direction actuelle est up
 
         addi t3,zero,DIR_DOWN 
-        stw GSA(t6),t3
+        stw t3, GSA(t6)
         
         ret
 
@@ -179,7 +185,7 @@ get_input:
         beq t7,t5,opposite_direction    ;Si la direction actuelle est down
 
         addi t2,zero,DIR_UP 
-        stw GSA(t6),t2
+        stw t2, GSA(t6)
         
         ret
 
@@ -190,7 +196,7 @@ get_input:
         beq t7,t5,opposite_direction    ;Si la direction actuelle est right
 
         addi t1,zero,DIR_LEFT 
-        stw GSA(t6),t1
+        stw t1, GSA(t6)
         ret
 
     opposite_direction :
@@ -207,8 +213,11 @@ get_input:
 ; BEGIN: draw_array
 draw_array:
 
-    subi t0,zero,1
-    subi t1,zero,1
+
+    addi t5, zero, 1
+
+    sub t0,zero,t5
+    sub t1,zero,t5
 
     loop_x: ;boucle des x
         addi t0,t0,1
@@ -217,8 +226,8 @@ draw_array:
 
         loop_y :    ;boucle des y
             addi t1,t1,1
-            addi t2,zero,8
-            beq t1,t2,reset_y       ;t1 (x) et t2 (y) parcourt tout le GSA
+            addi t6,zero,8
+            beq t1,t6,reset_y       ;t1 (x) et t2 (y) parcourt tout le GSA
 
             slli t3, t1, 3
             add t3, t3, t2  ;addresse dans le GSA calculee
@@ -227,12 +236,12 @@ draw_array:
 
             beq t3,zero,loop_y  ;si il faut pas dessiner de pixel, on passe au suivant
 
-            ldw a0,t1
-            ldw a1,t2
-            set_pixel
+            add a0,t0, zero
+            add a1,t1, zero
+            call set_pixel
 
         reset_y :   ;met a jour le y si on arrive au bout d'une colonne 
-            subi t2,zero,1
+            sub t1,zero,t5
             br loop_x
 
 
@@ -247,6 +256,9 @@ draw_array:
 
 ; BEGIN: move_snake
 move_snake:
+
+    addi t5, zero, 1
+
     ldw t1,HEAD_X(zero)
     ldw t2,HEAD_Y(zero)
 
@@ -257,27 +269,27 @@ move_snake:
 
     
     addi t0,zero,DIR_RIGHT
-    beq t4,t0,right
+    beq t4,t0,right_head
     addi t0,zero,DIR_LEFT
-    beq t4,t0,left
+    beq t4,t0,left_head
     addi t0,zero,DIR_UP
-    beq t4,t0,up
+    beq t4,t0,up_head
     addi t0,zero,DIR_DOWN
-    beq t4,t0,down
+    beq t4,t0,down_head
 
 
-    right:
+    right_head:
         addi t1,t1,1
         ldw t1,HEAD_X(zero)
         
-    left:
-        subi t1,t1,1
+    left_head:
+        sub t1,t1,t5
         ldw t1,HEAD_X(zero)
-    up:
+    up_head:
         addi t2,t2,1
         ldw t2,HEAD_Y(zero)
-    down:
-        subi t2,t2,1
+    down_head:
+        sub t2,t2,t5
         ldw t2,HEAD_Y(zero)
 
     ldw t1,HEAD_X(zero)
@@ -305,27 +317,28 @@ move_snake:
 
 
         addi t0,zero,DIR_RIGHT
-        beq t4,t0,right
+        beq t4,t0,right_tail
         addi t0,zero,DIR_LEFT
-        beq t4,t0,left
+        beq t4,t0,left_tail
         addi t0,zero,DIR_UP
-        beq t4,t0,up
+        beq t4,t0,up_tail
         addi t0,zero,DIR_DOWN
-        beq t4,t0,down
+        beq t4,t0,down_tail
 
 
-        right:
+
+        right_tail:
             addi t1,t1,1
             ldw t1,TAIL_X(zero)
             
-        left:
-            subi t1,t1,1
+        left_tail:
+            sub t1,t1,t5
             ldw t1,TAIL_X(zero)
-        up:
+        up_tail:
             addi t2,t2,1
             ldw t2,TAIL_Y(zero)
-        down:
-            subi t2,t2,1
+        down_tail:
+            sub t2,t2,t5
             ldw t2,TAIL_Y(zero)
 
 
