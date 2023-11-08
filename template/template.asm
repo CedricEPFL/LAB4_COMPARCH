@@ -212,38 +212,44 @@ draw_array:
 
 ; BEGIN: move_snake
 move_snake:
-    ldw t6,HEAD_X(zero)
-    ldw t7,HEAD_Y(zero)
+    ldw t1,HEAD_X(zero)
+    ldw t2,HEAD_Y(zero)
 
-    slli t5, t6, 3
-    add t5, t7, t5  ;addresse dans le GSA calculee
-    slli t5, t5, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
-    ldw t7, GSA(t5) ;recupere la valeur de la head
+    slli t3, t1, 3
+    add t3, t2, t3  ;addresse dans le GSA calculee
+    slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+    ldw t3, GSA(t3) ;recupere la valeur de la head
 
+    
     addi t0,zero,DIR_RIGHT
-    beq t7,t0,right
+    beq t3,t0,right
     addi t0,zero,DIR_LEFT
-    beq t7,t0,left
+    beq t3,t0,left
     addi t0,zero,DIR_UP
-    beq t7,t0,up
+    beq t3,t0,up
     addi t0,zero,DIR_DOWN
-    beq t7,t0,down
+    beq t3,t0,down
 
 
     right:
-        ldw HEAD_X,HEAD_X + 1(zero)
+        addi t1,t1,1
+        ldw t1,HEAD_X(zero)
+        
     left:
-        ldw HEAD_X,HEAD_X - 1(zero)
+        subi t1,t1,1
+        ldw t1,HEAD_X - 1(zero)
     up:
-        ldw HEAD_Y,HEAD_Y + 1(zero)
+        addi t2,t2,1
+        ldw t2,HEAD_Y + 1(zero)
     down:
-        ldw HEAD_Y,HEAD_Y - 1(zero)
+        subi t2,t2,1
+        ldw t2,HEAD_Y - 1(zero)
 
     addi t0,zero,ARG_HUNGRY
     beq a0,t0,change_tail
 
     change_tail:
-        
+
 
 
     ret
