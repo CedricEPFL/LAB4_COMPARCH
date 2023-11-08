@@ -215,10 +215,10 @@ move_snake:
     ldw t6,HEAD_X(zero)
     ldw t7,HEAD_Y(zero)
 
-    slli t6, t6, 3
-    add t6, t7, t6  ;addresse dans le GSA calculee
-    slli t6, t6, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
-    ldw t7, GSA(t6) ;recupere la valeur de la head
+    slli t5, t6, 3
+    add t5, t7, t5  ;addresse dans le GSA calculee
+    slli t5, t5, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+    ldw t7, GSA(t5) ;recupere la valeur de la head
 
     addi t0,zero,DIR_RIGHT
     beq t7,t0,right
@@ -231,14 +231,20 @@ move_snake:
 
 
     right:
+        ldw HEAD_X,HEAD_X + 1(zero)
     left:
+        ldw HEAD_X,HEAD_X - 1(zero)
     up:
+        ldw HEAD_Y,HEAD_Y + 1(zero)
     down:
+        ldw HEAD_Y,HEAD_Y - 1(zero)
 
-    addi t0,zero,ARG_FED
-    beq 
+    addi t0,zero,ARG_HUNGRY
+    beq a0,t0,change_tail
 
     change_tail:
+        
+
 
     ret
 
