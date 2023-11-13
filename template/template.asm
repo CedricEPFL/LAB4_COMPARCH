@@ -245,15 +245,15 @@ get_input:
     ldw t0,4 + BUTTONS(zero)   ;edgecapture
     stw zero,4 + BUTTONS(zero)  ;clear edgecapture
 
-    andi t5,t0,1        ;mask de checkpoint
-    andi t4,t0,0b10000   ;mask de right
-    srli t4,t4,4
-    andi t3,t0,0b1000    ;mask de down
-    srli t3,t3,3
-    andi t2,t0,0b100     ;mask de up
-    srli t2,t2,2
-    andi t1,t0,0b10      ;mask de left
-    slli t1,t1,1        
+    andi t5,t0,0b10000        ;mask de checkpoint
+    srli t5,t5,4
+    andi t4,t0,0b1000   ;mask de right
+    srli t4,t4,3
+    andi t3,t0,0b100    ;mask de down
+    srli t3,t3,2
+    andi t2,t0,0b10     ;mask de up
+    srli t2,t2,1
+    andi t1,t0,1      ;mask de left
 
     ldw t6,HEAD_X(zero)
     ldw t7,HEAD_Y(zero)
