@@ -62,17 +62,20 @@ main:
     addi t0, zero, DIR_RIGHT
     stw t0, GSA(zero)
 
-	
+	addi t0,zero,64
+	stw t0,RANDOM_NUM(zero)	
+
 	call clear_leds
+	call create_food
 	call draw_array
     loop :
-        call wait
+        ;call wait
         call clear_leds
         call get_input
         call hit_test
 
-        addi t0, zero, RET_COLLISION
-        beq v0, t0, end_game
+        ;addi t0, zero, RET_COLLISION
+        ;beq v0, t0, end_game
 
         addi a0,zero,ARG_HUNGRY
 
