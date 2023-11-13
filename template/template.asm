@@ -61,10 +61,15 @@ main:
     ldw zero,TAIL_Y(zero)
     addi t0, zero, DIR_RIGHT
     stw t0, GSA(zero)
+
+    addi t4, zero, 2    ;t4 = 2
+    slli t5, t4, 22     ;t5 = 2 puissance 22
+    addi t6, zero, 1    ;t6 = 1
 	
 	call clear_leds
 	call draw_array
     loop :
+        call wait
         call clear_leds
         call get_input
 		addi a0,zero,ARG_HUNGRY
@@ -72,6 +77,16 @@ main:
         call draw_array
         br loop
 
+    wait :
+        addi t4, zero, 1    ;t4 = 1
+        slli t5, t4, 22     ;t5 = 2 puissance 22
+        continue : 
+            beq t5, zero, exit
+            sub t5, t5, t4
+            br continue
+
+        exit : 
+            ret
 
 ; BEGIN: clear_leds
 clear_leds:
