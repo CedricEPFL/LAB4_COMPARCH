@@ -570,20 +570,21 @@ memory_copy :
 save_checkpoint:
     ldw t6, SCORE(zero)
     addi t7, zero, 10
+    beq t6, zero, no_save
     save :
         bge t6, t7, decrementer
         beq t6, zero, multiple_dix
-        addi v0, zero, 0
-        ret
+        no save :
+            addi v0, zero, 0
+            ret
 
         decrementer : 
             addi t6, t6, -10
             br save
 
         multiple_dix : 
-            addi t7, zero, 1
-            stw t7, CP_VALID(zero)
             addi v0, zero, 1
+            stw v0, CP_VALID(zero)
 
             addi a2, zero, GSA
             addi a3, zero, CP_GSA
@@ -615,9 +616,7 @@ restore_checkpoint:
 	ldw ra, 0(sp)
 	addi sp, sp, 4
 
-
-    addi t7, zero, 1
-    stw t7, CP_VALID(zero)
+	addi v0, zero, 1
     ret
 
     cp_invalid : 
