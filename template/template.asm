@@ -131,14 +131,14 @@ init_game:
 ; BEGIN: create_food
 create_food:
     addi t0,zero,0xFF   ;mask du dernier byte
-    ldw t1,RANDOM_NUM   ;load le nombre random
+    ldw t1,RANDOM_NUM(zero)   ;load le nombre random
     and t0,t1,t0    ;recupere la valeur random
 
     addi t1,zero,96     ;limite du GSA en index
-    slli t1,t1,2        ;x4 car on est en word dans le GSA
 
     bge t0,t1,create_food   ;si depasse la limite, on recommence
     
+    slli t0,t0,2    ;x4 l'adresse random car on est avec des word
     ldw t2,GSA(t0)
     bne t2,zero,create_food ;si le pixel n'est pas libre, on recommence
 
