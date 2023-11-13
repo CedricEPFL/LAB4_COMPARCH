@@ -199,7 +199,7 @@ init_game:
 	stw zero, HEAD_X(zero)			
 	stw zero, HEAD_Y(zero)			
 	stw zero, TAIL_X(zero)			
-	stw zero, TAIL_Y(zero)			
+	stw zero, TAIL_Y(zero)		
 	stw zero, SCORE(zero)		
 
 	addi sp, sp, -4
