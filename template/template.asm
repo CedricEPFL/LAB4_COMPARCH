@@ -171,7 +171,7 @@ init_game:
         stw zero, GSA(t3)			;clear gsa[i]
         addi t1, t1, 1				;increment counter
         jmpi init_loop
-
+    init_continue:
     addi t0, zero, DIR_RIGHT		
 	stw t0, GSA(zero)			
 	stw zero, HEAD_X(zero)			
