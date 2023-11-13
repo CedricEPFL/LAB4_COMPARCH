@@ -604,15 +604,16 @@ save_checkpoint:
         multiple_dix : 
             addi v0, zero, 1
             stw v0, CP_VALID(zero)
+            addi t2, zero, NB_ELEM_CPY 			;nb of elements to copy
+            addi t3, zero, 0				;counter of elements
+            beq s0, zero, save_memcpy
 
-            addi a2, zero, GSA
-            addi a3, zero, CP_GSA
-            
-            addi sp, sp, -4
-			stw ra, 0(sp)
-            call memory_copy
-			ldw ra, 0(sp)
-			addi sp, sp, 4
+        save_memcpy:
+            blt t2, t3, return				;if (nb of elem < counter) then return
+            ldw t4, HEAD_X(t3)				;load the element to copy
+            stw t4, CP_HEAD_X(t3)			;store the element
+            addi t3, t3, 4					;increment counter by 4
+            jmpi save_memcpy
 
             ret
 
@@ -622,25 +623,22 @@ save_checkpoint:
 
 ; BEGIN: restore_checkpoint
 restore_checkpoint:
-    ldw t0, CP_VALID(zero)
-    beq t0, zero, cp_invalid
+	ldw s0, CP_VALID(zero)
+	beq s0, zero, no_restore
+	addi t2, zero, NB_ELEM_CPY		;nb of elements to copy
+	addi t3, zero, 0				;counter of elements
+	addi v0, zero, 1				;return 1 if (cp_valid)
+	br restore_memcpy
+no_restore:
+	addi v0, zero, 0				;return 0 if (cp invalid)
+	ret
+restore_memcpy:
+	blt t2, t3, return				;if (nb of elem < counter) then return
+	ldw t4, CP_HEAD_X(t3)			;load the element to copy
+	stw t4, HEAD_X(t3)				;store element
+	addi t3, t3, 4					;increment counter by 4
+	jmpi restore_memcpy
 
-    addi a2, zero, CP_GSA
-    addi a3, zero, GSA
-
-
-    addi sp, sp, -4
-	stw ra, 0(sp)
-    call memory_copy
-	ldw ra, 0(sp)
-	addi sp, sp, 4
-
-	addi v0, zero, 1
-    ret
-
-    cp_invalid : 
-        addi v0, zero, 0
-        ret
 ; END: restore_checkpoint
 
 
