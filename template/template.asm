@@ -583,7 +583,7 @@ save_checkpoint:
     addi t7, zero, 10
     save :
         bge t6, t7, decrementer
-        beq t6, zero, mutliple_dix
+        beq t6, zero, multiple_dix
         addi v0, zero, 0
         ret
 
