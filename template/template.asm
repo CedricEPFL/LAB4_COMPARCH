@@ -122,17 +122,6 @@ wait :
 
     exit : 
         ret
-;Wait procedure pour pouvoir jouer sur le GECKO
-wait :
-    addi t4, zero, 1    ;t4 = 1
-    slli t5, t4, 22     ;t5 = 2 puissance 22
-    continue : 
-        beq t5, zero, exit
-        sub t5, t5, t4
-        br continue
-
-    exit : 
-        ret
     
    
 
