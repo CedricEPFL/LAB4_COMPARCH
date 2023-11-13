@@ -66,20 +66,20 @@ main:
         call get_input
 
         addi t0,zero,BUTTON_CHECKPOINT
-        beq v0,t0,main_cp       ;Verifie si le bouton checkpoint a ete appuye
+        beq v0,t0,main_cp
 
         call hit_test
         addi t0,zero,RET_ATE_FOOD
-        beq v0,t0,main_ate_food     ;Verifie si le serpent a mange
+        beq v0,t0,main_ate_food
 
         addi t0,zero,RET_COLLISION
-        beq v0,t0,main_init_game    ;verifie si il y a eu une collision
+        beq v0,t0,main_init_game
 
         call move_snake
 
         br display
 
-;Main quand le serpent a mange un fruit : update le score,create_food
+;Main quand le serpent a mangé un fruit : update le score,create_food
     main_ate_food:
         ldw t0, SCORE(zero)
         addi t0,t0,1
@@ -90,15 +90,15 @@ main:
 
         call save_checkpoint
 
-        beq v0,zero,display     ;Verifie si le checkpoint n'a pas ete save
+        beq v0,zero,display
 
-        br blink
+        br display
 
 ;Main si le boutton Checkpoint est appuyé
     main_cp:
         call restore_checkpoint    
 
-        beq v0,zero,main_get_input      ;Verifie si le checkpoint n'est pas valide
+        beq v0,zero,main_get_input
         br blink
 
 ;Permet de display le le jeu avec blink qui ne s'execute pas tout le temps
@@ -587,24 +587,24 @@ save_checkpoint:
         addi v0, zero, 0
         ret
 
-    decrementer : 
-        addi t6, t6, -10
-        br save
+        decrementer : 
+            addi t6, t6, -10
+            br save
 
-    multiple_dix : 
-        addi t7, zero, 1
-        ldw t7, CP_VALID(zero)
-        addi v0, zero, 1
-        stw a2, zero, GSA
-        stw a3, zero, CP_GSA
+        multiple_dix : 
+            addi t7, zero, 1
+            ldw t7, CP_VALID(zero)
+            addi v0, zero, 1
+            stw a2, zero, GSA
+            stw a3, zero, CP_GSA
             
-        addi sp, sp, -4
-		stw ra, 0(sp)
-        call memory_copy
-		ldw ra, 0(sp)
-		addi sp, sp, 4
+            addi sp, sp, -4
+			stw ra, 0(sp)
+            call memory_copy
+			ldw ra, 0(sp)
+			addi sp, sp, 4
 
-        ret
+            ret
 
         
 ; END: save_checkpoint
