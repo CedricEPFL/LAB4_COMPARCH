@@ -202,25 +202,24 @@ hit_test:
 
     up_hit : 
         beq t2, zero, exit_game_end
-        addi t2,t2,1
+        sub t2,t2,t5
         br suite_hit_test
 
     down_hit : 
         addi t3, zero, 7
-        beq t1, t3, exit_game_end
-        sub t2,t2,t5
+        beq t2, t3, exit_game_end
+        addi t2,t2,1
         br suite_hit_test
 
     suite_hit_test : 
-
-        addi t6, zero, FOOD       ;t6 = 5
-
+    
         slli t3, t1, 3
         add t3, t2, t3  ;addresse dans le GSA calculee
         slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
         ldw t4, GSA(t3) ;recupere la valeur de la head
 
-        
+        addi t6, zero, FOOD       ;t6 = 5
+
         beq t4, t6, exit_score_increment
         beq t4, zero, exit_no_collision
         br exit_game_end
