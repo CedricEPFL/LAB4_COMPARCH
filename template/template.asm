@@ -652,11 +652,10 @@ restore_checkpoint:
 
 ; BEGIN: blink_score
 blink_score:
-    ldw t0,digit_map(zero)
-    stw t0,SEVEN_SEGS(zero)
-    stw t0,4 + SEVEN_SEGS(zero)
-    stw t0,8 + SEVEN_SEGS(zero)
-    stw t0,12 + SEVEN_SEGS(zero)
+    stw zero,SEVEN_SEGS(zero)
+    stw zero,4 + SEVEN_SEGS(zero)
+    stw zero,8 + SEVEN_SEGS(zero)
+    stw zero,12 + SEVEN_SEGS(zero)
 
     addi sp, sp, -4
 	stw ra, 0(sp)
