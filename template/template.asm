@@ -66,20 +66,20 @@ main:
         call get_input
 
         addi t0,zero,BUTTON_CHECKPOINT
-        beq v0,t0,main_cp
+        beq v0,t0,main_cp       ;Verifie si le bouton checkpoint a ete appuye
 
         call hit_test
         addi t0,zero,RET_ATE_FOOD
-        beq v0,t0,main_ate_food
+        beq v0,t0,main_ate_food     ;Verifie si le serpent a mange
 
         addi t0,zero,RET_COLLISION
-        beq v0,t0,main_init_game
+        beq v0,t0,main_init_game    ;verifie si il y a eu une collision
 
         call move_snake
 
         br display
 
-;Main quand le serpent a mangé un fruit : update le score,create_food
+;Main quand le serpent a mange un fruit : update le score,create_food
     main_ate_food:
         ldw t0, SCORE(zero)
         addi t0,t0,1
@@ -90,15 +90,15 @@ main:
 
         call save_checkpoint
 
-        beq v0,zero,display
+        beq v0,zero,display     ;Verifie si le checkpoint n'a pas ete save
 
-        br display
+        br blink
 
 ;Main si le boutton Checkpoint est appuyé
     main_cp:
         call restore_checkpoint    
 
-        beq v0,zero,main_get_input
+        beq v0,zero,main_get_input      ;Verifie si le checkpoint n'est pas valide
         br blink
 
 ;Permet de display le le jeu avec blink qui ne s'execute pas tout le temps
