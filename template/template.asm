@@ -624,11 +624,14 @@ restore_checkpoint:
 	ldw ra, 0(sp)
 	addi sp, sp, 4
 
+
     addi t7, zero, 1
     ldw t7, CP_VALID(zero)
+    ret
 
     cp_invalid : 
         addi v0, zero, 0
+        ret
 ; END: restore_checkpoint
 
 
