@@ -548,38 +548,38 @@ move_snake:
 
 memory_copy : 
 
-    sub t0,zero,-1
-    sub t1,zero,-1
+    addi t0,zero,-1
+    addi t1,zero,-1
 
-    loop_x: ;boucle des x
+    loop_x_mem: ;boucle des x
         addi t0,t0,1
-        addi t2,zero,12
-        beq t0,t2,end
+        addi t2,zero,NB_ROWS
+        beq t0,t2,end_mem
 
-        loop_y :    ;boucle des y
+        loop_y_mem :    ;boucle des y
             addi t1,t1,1
-            addi t6,zero,8
-            beq t1,t6,reset_y       ;t0 (x) et t1 (y) parcourt tout le GSA
+            addi t6,zero,NB_COLS
+            beq t1,t6,reset_y_mem       ;t0 (x) et t1 (y) parcourt tout le GSA
 
             slli t3, t0, 3
             add t3, t3, t1  ;addresse dans le GSA calculee
             slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
-            add t4, t3, a2
+            add t4, t3, a2 
             ldw t4, 0(t4)      ;recupere la valeur du GSA a (x,y)
 
             add t5, t3, a3
-            stw t5, 0(t4)
-			br loop_y
+            stw t4, 0(t5)
+			br loop_y_mem
 
-        reset_y :   ;met a jour le y si on arrive au bout d'une colonne 
+        reset_y_mem :   ;met a jour le y si on arrive au bout d'une colonne 
             addi t1,zero,-1
-            br loop_x
-    end :
+            br loop_x_mem
+    end_mem :
         ret
 
 ; BEGIN: save_checkpoint
 save_checkpoint:
-    stw t6, SCORE(zero)
+    ldw t6, SCORE(zero)
     addi t7, zero, 10
     save :
         bge t6, t7, decrementer
@@ -593,10 +593,11 @@ save_checkpoint:
 
         multiple_dix : 
             addi t7, zero, 1
-            ldw t7, CP_VALID(zero)
+            stw t7, CP_VALID(zero)
             addi v0, zero, 1
-            stw a2, zero, GSA
-            stw a3, zero, CP_GSA
+
+            addi a2, zero, GSA
+            addi a3, zero, CP_GSA
             
             addi sp, sp, -4
 			stw ra, 0(sp)
@@ -612,10 +613,11 @@ save_checkpoint:
 
 ; BEGIN: restore_checkpoint
 restore_checkpoint:
-    ldw t0, 0(CP_VALID)
+    ldw t0, CP_VALID(zero)
     beq t0, zero, cp_invalid
-    stw a2, zero, CP_GSA
-    stw a3, zero, GSA
+
+    addi a2, zero, CP_GSA
+    addi a3, zero, GSA
 
 
     addi sp, sp, -4
@@ -625,10 +627,12 @@ restore_checkpoint:
 	addi sp, sp, 4
 
     addi t7, zero, 1
-    ldw t7, CP_VALID(zero)
+    stw t7, CP_VALID(zero)
+    ret
 
     cp_invalid : 
         addi v0, zero, 0
+        ret
 ; END: restore_checkpoint
 
 
