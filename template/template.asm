@@ -67,6 +67,7 @@ main:
     loop :
         call clear_leds
         call get_input
+		addi a0,zero,ARG_HUNGRY
         call move_snake
         call draw_array
         br loop
@@ -230,7 +231,7 @@ draw_array:
         loop_y :    ;boucle des y
             addi t1,t1,1
             addi t6,zero,8
-            beq t1,t6,reset_y       ;t1 (x) et t2 (y) parcourt tout le GSA
+            beq t1,t6,reset_y       ;t0 (x) et t1 (y) parcourt tout le GSA
 
             slli t3, t0, 3
             add t3, t3, t1  ;addresse dans le GSA calculee
@@ -332,6 +333,7 @@ move_snake:
             add t3, t2, t3          ;addresse dans le GSA calculee
             slli t3, t3, 2          ;multiplication par 4 car on travaille avec des words dans le GSA
             ldw t4, GSA(t3)         ;recupere la valeur de la tail
+            stw zero,GSA(t3)        ;supprime l'ancienne tail
 
 
             addi t0,zero,DIR_RIGHT
