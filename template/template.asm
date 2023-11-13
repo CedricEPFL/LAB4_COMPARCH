@@ -42,6 +42,7 @@
 .equ    RET_COLLISION,  2       ; return value for hit_test when a collision was detected
 .equ    ARG_HUNGRY,     0       ; a0 argument for move_snake when food wasn't eaten
 .equ    ARG_FED,        1       ; a0 argument for move_snake when food was eaten
+.equ	NB_ELEM_CPY,	0x194	;nb of elements to copy
 
 ; initialize stack pointer
 addi    sp, zero, LEDS
@@ -605,17 +606,18 @@ save_checkpoint:
         multiple_dix : 
             addi v0, zero, 1
             stw v0, CP_VALID(zero)
-            addi t2, zero, NB_ELEM_CPY 			;nb of elements to copy
-            addi t3, zero, 0				;counter of elements
-            beq s0, zero, save_memcpy
+            addi t2, zero, 404			
+            addi t3, zero, 0				
+            beq s0, zero, copy_gsa_to_cpgsa
 
-        save_memcpy:
-            blt t2, t3, return				;if (nb of elem < counter) then return
-            ldw t4, HEAD_X(t3)				;load the element to copy
-            stw t4, CP_HEAD_X(t3)			;store the element
-            addi t3, t3, 4					;increment counter by 4
-            jmpi save_memcpy
+        copy_gsa_to_cpgsa:
+            blt t2, t3, exit_one		
+            ldw t4, HEAD_X(t3)				
+            stw t4, CP_HEAD_X(t3)			
+            addi t3, t3, 4					
+            jmpi copy_gsa_to_cpgsa
 
+        exit_one : 
             ret
 
         
@@ -626,19 +628,24 @@ save_checkpoint:
 restore_checkpoint:
 	ldw s0, CP_VALID(zero)
 	beq s0, zero, no_restore
-	addi t2, zero, NB_ELEM_CPY		;nb of elements to copy
-	addi t3, zero, 0				;counter of elements
-	addi v0, zero, 1				;return 1 if (cp_valid)
-	br restore_memcpy
-no_restore:
-	addi v0, zero, 0				;return 0 if (cp invalid)
-	ret
-restore_memcpy:
-	blt t2, t3, return				;if (nb of elem < counter) then return
-	ldw t4, CP_HEAD_X(t3)			;load the element to copy
-	stw t4, HEAD_X(t3)				;store element
-	addi t3, t3, 4					;increment counter by 4
-	jmpi restore_memcpy
+	addi t2, zero, 404	
+	addi t3, zero, 0			
+	addi v0, zero, 1				
+	br copy_cpgsa_to_gsa
+
+
+    no_restore:
+        addi v0, zero, 0			
+        ret
+    copy_cpgsa_to_gsa:
+        blt t2, t3, exit_two			
+        ldw t4, CP_HEAD_X(t3)			
+        stw t4, HEAD_X(t3)				
+        addi t3, t3, 4					
+        jmpi copy_cpgsa_to_gsa
+
+    exit_two:
+        ret
 
 ; END: restore_checkpoint
 
