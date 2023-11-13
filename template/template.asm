@@ -135,8 +135,9 @@ set_pixel:
 
 ; BEGIN: display_score
 display_score:
-    stw zero,SEVEN_SEGS(zero)
-    stw zero,SEVEN_SEGS + 4(zero)
+    ldw t0,digit_map(zero)
+    stw t0,SEVEN_SEGS(zero)
+    stw t0,4 + SEVEN_SEGS(zero)
 
     ldw t0,SCORE(zero)
     addi t1,zero,0  ;representera les dizaines
@@ -150,10 +151,12 @@ display_score:
         bge t0,t2,modulo10
 
     show_score:
+        slli t1,t1,2
         ldw t1, digit_map(t1)
-        stw t1, SEVEN_SEGS + 8(t1)
+        stw t1, 8 + SEVEN_SEGS(t1)
+        slli t0,t0,2
         ldw t0, digit_map(t0)
-        stw t0, SEVEN_SEGS + 12(t0)
+        stw t0, 12 + SEVEN_SEGS(t0)
 
     ret    
 
@@ -625,10 +628,11 @@ restore_checkpoint:
 
 ; BEGIN: blink_score
 blink_score:
-    stw zero,SEVEN_SEGS(zero)
-    stw zero,SEVEN_SEGS + 4(zero)
-    stw zero,SEVEN_SEGS + 8(zero)
-    stw zero,SEVEN_SEGS + 12(zero)
+    ldw t0,digit_map(zero)
+    stw t0,SEVEN_SEGS(zero)
+    stw t0,SEVEN_SEGS + 4(zero)
+    stw t0,SEVEN_SEGS + 8(zero)
+    stw t0,SEVEN_SEGS + 12(zero)
 
     addi sp, sp, -4
 	stw ra, 0(sp)
