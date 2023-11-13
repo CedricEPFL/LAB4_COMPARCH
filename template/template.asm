@@ -113,8 +113,23 @@ init_game:
 
 
 ; BEGIN: create_food
-create_food:
+create_food:    ;Interpretation du RANDOM_NUM : (3 premiers bytes inutiles, dernier byte : (7..4 : x, 3..0 : y))
+    addi t0,zero,0xFF   ;mask des 4 premier bits du dernier byte qui vont representer x
+    ldw t1,RANDOM_NUM   ;load le nombre random
+    and t0,t1,t0
 
+    addi t1,zero,96     ;limite du GSA en index
+    slli t1,t1,2        ;x4 car on est en word dans le GSA
+
+    bge t0,t1,create_food   ;si depasse la limite, on recommence
+    
+    ldw t2,GSA(t1)
+    bne t2,zero,create_food ;si le pixel n'est pas libre, on recommence
+
+    addi t2,zero,FOOD
+    stw t2,GSA(t1)  ;met le pixel random du GSA a 5 (FOOD)
+
+    ret
 ; END: create_food
 
 
