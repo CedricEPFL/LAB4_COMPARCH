@@ -546,16 +546,89 @@ move_snake:
 
 ; END: move_snake
 
+memory_copy : 
+
+    sub t0,zero,-1
+    sub t1,zero,-1
+
+    loop_x: ;boucle des x
+        addi t0,t0,1
+        addi t2,zero,12
+        beq t0,t2,end
+
+        loop_y :    ;boucle des y
+            addi t1,t1,1
+            addi t6,zero,8
+            beq t1,t6,reset_y       ;t0 (x) et t1 (y) parcourt tout le GSA
+
+            slli t3, t0, 3
+            add t3, t3, t1  ;addresse dans le GSA calculee
+            slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+            add t4, t3, a2
+            ldw t4, 0(t4)      ;recupere la valeur du GSA a (x,y)
+
+            add t5, t3, a3
+            stw t5, 0(t4)
+			br loop_y
+
+        reset_y :   ;met a jour le y si on arrive au bout d'une colonne 
+            addi t1,zero,-1
+            br loop_x
+    end :
+        ret
 
 ; BEGIN: save_checkpoint
 save_checkpoint:
+    stw t6, SCORE(zero)
+    addi t7, zero, 10
+    save :
+        bge t6, t7, decrementer
+        beq t6, zero, mutliple_dix
+        addi v0, zero, 0
+        ret
 
+        decrementer : 
+            addi t6, t6, -10
+            br save
+
+        multiple_dix : 
+            addi t7, zero, 1
+            ldw t7, CP_VALID(zero)
+            addi v0, zero, 1
+            stw a2, zero, GSA
+            stw a3, zero, CP_GSA
+            
+            addi sp, sp, -4
+			stw ra, 0(sp)
+            call memory_copy
+			ldw ra, 0(sp)
+			addi sp, sp, 4
+
+            ret
+
+        
 ; END: save_checkpoint
 
 
 ; BEGIN: restore_checkpoint
 restore_checkpoint:
+    ldw t0, 0(CP_VALID)
+    beq t0, zero, cp_invalid
+    stw a2, zero, CP_GSA
+    stw a3, zero, GSA
 
+
+    addi sp, sp, -4
+	stw ra, 0(sp)
+    call memory_copy
+	ldw ra, 0(sp)
+	addi sp, sp, 4
+
+    addi t7, zero, 1
+    ldw t7, CP_VALID(zero)
+
+    cp_invalid : 
+        addi v0, zero, 0
 ; END: restore_checkpoint
 
 
