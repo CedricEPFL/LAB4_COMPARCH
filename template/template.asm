@@ -162,43 +162,57 @@ display_score:
 
 ; BEGIN: init_game
 init_game:
-
-    addi t0, zero, NB_CELLS		;last index
+	addi t0, zero, NB_CELLS		;last index
 	addi t1, zero, 0			;counter init
-    init_loop:
-        beq t1, t0, init_continue
-        slli t3, t1, 2				;gsa_index
-        stw zero, GSA(t3)			;clear gsa[i]
-        addi t1, t1, 1				;increment counter
-        jmpi init_loop
-    init_continue:
-    addi t0, zero, DIR_RIGHT		
-	stw t0, GSA(zero)			
-	stw zero, HEAD_X(zero)			
-	stw zero, HEAD_Y(zero)		
-	stw zero, TAIL_X(zero)			
-	stw zero, TAIL_Y(zero)		
-	stw zero, SCORE(zero)  
+init_loop:
+	beq t1, t0, init_continue
+	slli t3, t1, 2				;gsa_index
+	stw zero, GSA(t3)			;clear gsa[i]
+	addi t1, t1, 1				;increment counter
+	jmpi init_loop
 
-    addi sp, sp, -4
-	stw ra, 0(sp)
+init_continue:
+	addi t0, zero, 4				;dir => right
+	stw t0, GSA(zero)				;store gs
+	stw zero, HEAD_X(zero)			;store x_head
+	stw zero, HEAD_Y(zero)			;store y_head
+	stw zero, TAIL_X(zero)			;store x_tail
+	stw zero, TAIL_Y(zero)			;store y_tail
+	stw zero, SCORE(zero)			;store score	
+
+	addi sp, sp, -4
+	stw ra, 0(sp)				;push ra
+
     call create_food
-	ldw ra, 0(sp)
+
+	ldw ra, 0(sp)				;pop ra
 	addi sp, sp, 4
 
-    addi sp, sp, -4
-	stw ra, 0(sp)
+	addi sp, sp, -4
+	stw ra, 0(sp)				;push ra
+
     call clear_leds
-	ldw ra, 0(sp)
+
+	ldw ra, 0(sp)				;pop ra
 	addi sp, sp, 4
 
-    addi sp, sp, -4
-	stw ra, 0(sp)
+	addi sp, sp, -4
+	stw ra, 0(sp)				;push ra
+
     call draw_array
-	ldw ra, 0(sp)
+
+	ldw ra, 0(sp)				;pop ra
 	addi sp, sp, 4
 
-    ret
+	addi sp, sp, -4
+	stw ra, 0(sp)				;push ra
+
+    call display_score
+
+	ldw ra, 0(sp)				;pop ra
+	addi sp, sp, 4
+	
+	ret
 ; END: init_game
 
 
