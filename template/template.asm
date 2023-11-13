@@ -62,20 +62,18 @@ main:
     addi t0, zero, DIR_RIGHT
     stw t0, GSA(zero)
 
-	addi t0,zero,64
-	stw t0,RANDOM_NUM(zero)	
-
+	
 	call clear_leds
-	call create_food
+    call create_food
 	call draw_array
     loop :
-        ;call wait
+        call wait
         call clear_leds
         call get_input
         call hit_test
 
-        ;addi t0, zero, RET_COLLISION
-        ;beq v0, t0, end_game
+        addi t0, zero, RET_COLLISION
+        beq v0, t0, end_game
 
         addi a0,zero,ARG_HUNGRY
 
@@ -194,7 +192,7 @@ hit_test:
 
     right_hit : 
         addi t3, zero, 11
-        beq t1, t5, exit_game_end
+        beq t1, t3, exit_game_end
         addi t1,t1,1
         br suite_hit_test
 
@@ -215,7 +213,7 @@ hit_test:
         br suite_hit_test
 
     suite_hit_test : 
-    
+
         slli t3, t1, 3
         add t3, t2, t3  ;addresse dans le GSA calculee
         slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
@@ -247,15 +245,15 @@ get_input:
     ldw t0,4 + BUTTONS(zero)   ;edgecapture
     stw zero,4 + BUTTONS(zero)  ;clear edgecapture
 
-    andi t5,t0,0b10000  ;mask de checkpoint
-    srli t5,t5,4
-    andi t4,t0,0b1000   ;mask de right
-    srli t4,t4,3
-    andi t3,t0,0b100    ;mask de down
-    srli t3,t3,2
-    andi t2,t0,0b10     ;mask de up
-    srli t2,t2,1
-    andi t1,t0,1        ;mask de down
+    andi t5,t0,1        ;mask de checkpoint
+    andi t4,t0,0b10000   ;mask de right
+    srli t4,t4,4
+    andi t3,t0,0b1000    ;mask de down
+    srli t3,t3,3
+    andi t2,t0,0b100     ;mask de up
+    srli t2,t2,2
+    andi t1,t0,0b10      ;mask de left
+    slli t1,t1,1        
 
     ldw t6,HEAD_X(zero)
     ldw t7,HEAD_Y(zero)
