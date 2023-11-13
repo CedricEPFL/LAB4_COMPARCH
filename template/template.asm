@@ -436,11 +436,21 @@ draw_array:
             add a0,t0, zero
             add a1,t1, zero
 
-			addi sp, sp, -4
+			addi sp, sp, -4 ;push ra
 			stw ra, 0(sp)
+            addi sp,sp,-4   ;push t0 = x
+            stw t0, 0(sp)
+            addi sp,sp,-4   ;push t1 = y
+            stw t1, 0(sp)
+
             call set_pixel
-			ldw ra, 0(sp)
+
+			ldw t1, 0(sp)   ;pop t1 = y
 			addi sp, sp, 4
+            ldw t0, 0(sp)    ;pop t0 = x
+            addi sp,sp,4
+            ldw ra, 0(sp)   ;pop ra
+            addi sp,sp,4
 
 			br loop_y
 
