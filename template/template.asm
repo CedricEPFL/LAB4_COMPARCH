@@ -672,7 +672,6 @@ blink_score:
 	addi sp, sp, 4    
 
     ret
-
 ; END: blink_score
 
 
