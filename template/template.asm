@@ -194,14 +194,13 @@ init_game:
         addi t0,t0,4
         bne t0,t1,clear_GSA
 
-	addi t0, zero, 4				;dir => right
-	stw t0, GSA(zero)				;store gs
-	stw zero, HEAD_X(zero)			;store x_head
-	stw zero, HEAD_Y(zero)			;store y_head
-	stw zero, TAIL_X(zero)			;store x_tail
-	stw zero, TAIL_Y(zero)			;store y_tail
-    addi t0, zero, 9
-	stw t0, SCORE(zero)			;store score	
+	addi t0, zero, 4			
+	stw t0, GSA(zero)			
+	stw zero, HEAD_X(zero)			
+	stw zero, HEAD_Y(zero)			
+	stw zero, TAIL_X(zero)			
+	stw zero, TAIL_Y(zero)			
+	stw zero, SCORE(zero)		
 
 	addi sp, sp, -4
 	stw ra, 0(sp)				
@@ -272,7 +271,7 @@ hit_test:
     beq t4,t0,down_hit
 
     right_hit : 
-        addi t3, zero, 11
+        addi t3, zero, NB_COLS - 1
         beq t1, t3, exit_game_end
         addi t1,t1,1
         br suite_hit_test
@@ -288,7 +287,7 @@ hit_test:
         br suite_hit_test
 
     down_hit : 
-        addi t3, zero, 7
+        addi t3, zero, NB_ROWS - 1
         beq t2, t3, exit_game_end
         addi t2,t2,1
         br suite_hit_test
@@ -419,12 +418,12 @@ draw_array:
 
     loop_x: ;boucle des x
         addi t0,t0,1
-        addi t2,zero,12
+        addi t2,zero,NB_COLS
         beq t0,t2,end
 
         loop_y :    ;boucle des y
             addi t1,t1,1
-            addi t6,zero,8
+            addi t6,zero,NB_ROWS
             beq t1,t6,reset_y       ;t0 (x) et t1 (y) parcourt tout le GSA
 
             slli t3, t0, 3
@@ -668,13 +667,7 @@ blink_score:
 	stw ra, 0(sp)
     call display_score
 	ldw ra, 0(sp)
-	addi sp, sp, 4
-
-    addi sp, sp, -4
-	stw ra, 0(sp)
-    call wait
-	ldw ra, 0(sp)
-	addi sp, sp, 4    
+	addi sp, sp, 4  
 
     ret
 ; END: blink_score
