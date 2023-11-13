@@ -180,7 +180,8 @@ init_game:
 	stw zero, HEAD_Y(zero)			;store y_head
 	stw zero, TAIL_X(zero)			;store x_tail
 	stw zero, TAIL_Y(zero)			;store y_tail
-	stw zero, SCORE(zero)			;store score	
+    addi t0, zero, 9
+	stw t0, SCORE(zero)			;store score	
 
 	addi sp, sp, -4
 	stw ra, 0(sp)				
@@ -574,7 +575,7 @@ save_checkpoint:
     save :
         bge t6, t7, decrementer
         beq t6, zero, multiple_dix
-        no save :
+        no_save :
             addi v0, zero, 0
             ret
 
