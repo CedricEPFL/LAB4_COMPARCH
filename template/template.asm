@@ -465,11 +465,11 @@ move_snake:
         stw t1,HEAD_X(zero)
         br suite
     up_head:
-        addi t2,t2,1
+        addi t2,t2,-1
         stw t2,HEAD_Y(zero)
         br suite
     down_head:
-        addi t2,t2,-1
+        addi t2,t2,1
         stw t2,HEAD_Y(zero)
         br suite
 
@@ -522,11 +522,11 @@ move_snake:
                 stw t1,TAIL_X(zero)
                 ret
             up_tail:
-                addi t2,t2,1
+                addi t2,t2,-1
                 stw t2,TAIL_Y(zero)
                 ret
             down_tail:
-                addi t2,t2,-1
+                addi t2,t2,1
                 stw t2,TAIL_Y(zero)
                 ret
 
