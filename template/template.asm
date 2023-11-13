@@ -62,19 +62,27 @@ main:
     addi t0, zero, DIR_RIGHT
     stw t0, GSA(zero)
 
-    addi t4, zero, 2    ;t4 = 2
-    slli t5, t4, 22     ;t5 = 2 puissance 22
-    addi t6, zero, 1    ;t6 = 1
 	
 	call clear_leds
 	call draw_array
     loop :
         call wait
         call clear_leds
-        ;call get_input
+        call get_input
+        call hit_test
+
+        addi t0, zero, RET_ATE_FOOD
+        beq v0, t0, ate_food 
+        ate_food : 
+            ;modif a0 pour dire qu'il a graille et call create_food 
+
+        addi t0, zero, RET_COLLISION
+        beq v0, t0, end_game
+
 		addi a0,zero,ARG_HUNGRY
-        ;call move_snake
-        call create_food
+        update_a0 : 
+
+        call move_snake
         call draw_array
         br loop
 
@@ -88,6 +96,10 @@ main:
 
         exit : 
             ret
+    
+    end_game : 
+        call draw_array
+        br end_game
 
 ; BEGIN: clear_leds
 clear_leds:
@@ -159,6 +171,7 @@ hit_test:
     slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
     ldw t4, GSA(t3) ;recupere la valeur de la head
 
+    addi t5, zero, 1          ;t5 = 1
     
     addi t0,zero,DIR_RIGHT
     beq t4,t0,right_hit
@@ -168,6 +181,54 @@ hit_test:
     beq t4,t0,up_hit
     addi t0,zero,DIR_DOWN
     beq t4,t0,down_hit
+
+    right_hit : 
+        addi t3, zero, 11
+        beq t1, t5, exit_game_end
+        addi t1,t1,1
+        br suite_hit_test
+
+    left_hit : 
+        beq t1, zero, exit_game_end
+        sub t1,t1,t5
+        br suite_hit_test
+
+    up_hit : 
+        beq t2, zero, exit_game_end
+        addi t2,t2,1
+        br suite_hit_test
+
+    down_hit : 
+        addi t3, zero, 7
+        beq t1, t3, exit_game_end
+        sub t2,t2,t5
+        br suite_hit_test
+
+    suite_hit_test : 
+
+        addi t6, zero, FOOD       ;t6 = 5
+
+        slli t3, t1, 3
+        add t3, t2, t3  ;addresse dans le GSA calculee
+        slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+        ldw t4, GSA(t3) ;recupere la valeur de la head
+
+        
+        beq t4, t6, exit_score_increment
+        beq t4, zero, exit_no_collision
+        br exit_game_end
+
+    exit_score_increment : 
+        addi v0, zero, 1
+        ret
+
+    exit_no_collision : 
+        addi v0, zero, 0
+        ret
+
+    exit_game_end : 
+        addi v0, zero, 2
+        ret
 
 ; END: hit_test
 
