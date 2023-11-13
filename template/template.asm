@@ -69,6 +69,8 @@ main:
         beq v0,t0,main_cp
 
         call hit_test
+        addi a0,v0,0
+
         addi t0,zero,RET_ATE_FOOD
         beq v0,t0,main_ate_food
 
