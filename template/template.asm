@@ -112,7 +112,6 @@ main:
         call draw_array
 
     br main_get_input
-
 ;Wait procedure pour pouvoir jouer sur le GECKO
 wait :
     addi t4, zero, 1    ;t4 = 1
@@ -124,6 +123,7 @@ wait :
 
     exit : 
         ret
+; END: main
    
 ; BEGIN: clear_leds
 clear_leds:
