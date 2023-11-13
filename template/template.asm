@@ -626,6 +626,7 @@ restore_checkpoint:
 	ldw ra, 0(sp)
 	addi sp, sp, 4
 
+
     addi t7, zero, 1
     stw t7, CP_VALID(zero)
     ret
