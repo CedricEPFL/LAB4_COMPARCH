@@ -53,45 +53,75 @@ addi    sp, zero, LEDS
 ; return values
 ;     This procedure should never return.
 main:
-	stw zero, CP_VALID(zero)
-main_init:
-	call wait
-	call init_game
-main_input:
-	call wait
-	call get_input
-	addi t1, zero, BUTTON_CHECKPOINT
-	beq v0, t1, main_rest_cp
-	call hit_test
-	addi a0, v0, 0
-	addi t1, zero, RET_ATE_FOOD
-	beq v0, t1, main_food
-	addi t1, zero, RET_COLLISION
-	beq v0, t1, main_init
-	call move_snake
-	call clear_leds
-	call draw_array 
-	jmpi main_input
-main_food:
-	call display_score
-	call move_snake
-	call create_food
-	call save_checkpoint
-	addi t1, zero, 1
-	beq v0, t1, main_blink
-	call clear_leds
-	call draw_array
-	jmpi main_input
-main_rest_cp:
-	call restore_checkpoint
-	ldw t1, CP_VALID(zero)
-	beq t1, zero, main_input
-main_blink:
-	call blink_score
-	call clear_leds
-	call draw_array 
-	jmpi main_input
+    stw zero,CP_VALID(zero)
 
+;Initialisation de la partie
+    main_init_game:
+        call wait
+        call init_game
+
+;Main de base qui recupere les input et adapte le jeu
+    main_get_input:
+        call wait
+        call get_input
+
+        addi t0,zero,BUTTON_CHECKPOINT
+        beq v0,t0,main_cp
+
+        call hit_test
+        addi t0,zero,RET_ATE_FOOD
+        beq v0,t0,main_ate_food
+
+        addi t0,zero,RET_COLLISION
+        beq v0,t0,main_init_game
+
+        call move_snake
+
+        br display
+
+;Main quand le serpent a mangé un fruit : update le score,create_food
+    main_ate_food:
+        ldw t0, SCORE(zero)
+        addi t0,t0,1
+        stw t0, SCORE(zero)
+        call display_score
+        call move_snake
+        call create_food
+
+        call save_checkpoint
+
+        beq v0,zero,display
+
+        br display
+
+;Main si le boutton Checkpoint est appuyé
+    main_cp:
+        call restore_checkpoint    
+
+        beq v0,zero,main_get_input
+        br blink
+
+;Permet de display le le jeu avec blink qui ne s'execute pas tout le temps
+    blink :
+        call blink_score
+
+    display:
+        call clear_leds
+        call draw_array
+
+    br main_get_input
+
+;Wait procedure pour pouvoir jouer sur le GECKO
+wait :
+    addi t4, zero, 1    ;t4 = 1
+    slli t5, t4, 22     ;t5 = 2 puissance 22
+    continue : 
+        beq t5, zero, exit
+        sub t5, t5, t4
+        br continue
+
+    exit : 
+        ret
 ;Wait procedure pour pouvoir jouer sur le GECKO
 wait :
     addi t4, zero, 1    ;t4 = 1
@@ -162,16 +192,15 @@ display_score:
 
 ; BEGIN: init_game
 init_game:
-	addi t0, zero, NB_CELLS		;last index
-	addi t1, zero, 0			;counter init
-init_loop:
-	beq t1, t0, init_continue
-	slli t3, t1, 2				;gsa_index
-	stw zero, GSA(t3)			;clear gsa[i]
-	addi t1, t1, 1				;increment counter
-	jmpi init_loop
+	addi t0,zero,0
+    addi t1,zero,NB_CELLS
+    slli t1,t1,2
 
-init_continue:
+    clear_GSA:
+        stw zero,GSA(t0)
+        addi t0,t0,4
+        bne t0,t1,clear_GSA
+
 	addi t0, zero, 4				;dir => right
 	stw t0, GSA(zero)				;store gs
 	stw zero, HEAD_X(zero)			;store x_head
@@ -181,35 +210,27 @@ init_continue:
 	stw zero, SCORE(zero)			;store score	
 
 	addi sp, sp, -4
-	stw ra, 0(sp)				;push ra
-
+	stw ra, 0(sp)				
     call create_food
-
-	ldw ra, 0(sp)				;pop ra
+	ldw ra, 0(sp)				
 	addi sp, sp, 4
 
 	addi sp, sp, -4
-	stw ra, 0(sp)				;push ra
-
+	stw ra, 0(sp)				
     call clear_leds
-
-	ldw ra, 0(sp)				;pop ra
+	ldw ra, 0(sp)				
 	addi sp, sp, 4
 
 	addi sp, sp, -4
-	stw ra, 0(sp)				;push ra
-
+	stw ra, 0(sp)				
     call draw_array
-
-	ldw ra, 0(sp)				;pop ra
+	ldw ra, 0(sp)				
 	addi sp, sp, 4
 
 	addi sp, sp, -4
-	stw ra, 0(sp)				;push ra
-
+	stw ra, 0(sp)				
     call display_score
-
-	ldw ra, 0(sp)				;pop ra
+	ldw ra, 0(sp)				
 	addi sp, sp, 4
 	
 	ret
