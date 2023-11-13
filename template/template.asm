@@ -71,20 +71,29 @@ main:
         call get_input
         call hit_test
 
-        addi t0, zero, RET_ATE_FOOD
-        beq v0, t0, ate_food 
-        ate_food : 
-            ;modif a0 pour dire qu'il a graille et call create_food 
-
         addi t0, zero, RET_COLLISION
         beq v0, t0, end_game
 
-		addi a0,zero,ARG_HUNGRY
-        update_a0 : 
+        addi a0,zero,ARG_HUNGRY
 
-        call move_snake
-        call draw_array
-        br loop
+        addi t0, zero, RET_ATE_FOOD
+        beq v0, t0, ate_food 
+
+        display :
+            call move_snake
+            call draw_array
+            br loop
+
+        ate_food : 
+            addi a0,zero,ARG_FED
+            call create_food
+            br display
+
+        end_game : 
+            call draw_array
+            br end_game
+
+
 
     wait :
         addi t4, zero, 1    ;t4 = 1
@@ -97,9 +106,7 @@ main:
         exit : 
             ret
     
-    end_game : 
-        call draw_array
-        br end_game
+   
 
 ; BEGIN: clear_leds
 clear_leds:
