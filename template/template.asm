@@ -629,9 +629,9 @@ restore_checkpoint:
 blink_score:
     ldw t0,digit_map(zero)
     stw t0,SEVEN_SEGS(zero)
-    stw t0,SEVEN_SEGS + 4(zero)
-    stw t0,SEVEN_SEGS + 8(zero)
-    stw t0,SEVEN_SEGS + 12(zero)
+    stw t0,4 + SEVEN_SEGS(zero)
+    stw t0,8 + SEVEN_SEGS(zero)
+    stw t0,12 + SEVEN_SEGS(zero)
 
     addi sp, sp, -4
 	stw ra, 0(sp)
@@ -644,6 +644,12 @@ blink_score:
     call display_score
 	ldw ra, 0(sp)
 	addi sp, sp, 4
+
+    addi sp, sp, -4
+	stw ra, 0(sp)
+    call wait
+	ldw ra, 0(sp)
+	addi sp, sp, 4    
 
     ret
 
