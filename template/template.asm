@@ -151,6 +151,23 @@ create_food:
 
 ; BEGIN: hit_test
 hit_test:
+    ldw t1,HEAD_X(zero)
+    ldw t2,HEAD_Y(zero)
+
+    slli t3, t1, 3
+    add t3, t2, t3  ;addresse dans le GSA calculee
+    slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
+    ldw t4, GSA(t3) ;recupere la valeur de la head
+
+    
+    addi t0,zero,DIR_RIGHT
+    beq t4,t0,right_hit
+    addi t0,zero,DIR_LEFT
+    beq t4,t0,left_hit
+    addi t0,zero,DIR_UP
+    beq t4,t0,up_hit
+    addi t0,zero,DIR_DOWN
+    beq t4,t0,down_hit
 
 ; END: hit_test
 
