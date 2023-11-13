@@ -153,10 +153,10 @@ display_score:
     show_score:
         slli t1,t1,2
         ldw t1, digit_map(t1)
-        stw t1, 8 + SEVEN_SEGS(t1)
+        stw t1, 8 + SEVEN_SEGS(zero)
         slli t0,t0,2
         ldw t0, digit_map(t0)
-        stw t0, 12 + SEVEN_SEGS(t0)
+        stw t0, 12 + SEVEN_SEGS(zero)
 
     ret    
 
