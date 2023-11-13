@@ -163,16 +163,16 @@ display_score:
 ; BEGIN: init_game
 init_game:
 
-    addi t0,zero,0
-    addi t1,zero,NB_CELLS
-    slli t1,t1,2
+    addi t0, zero, NB_CELLS		;last index
+	addi t1, zero, 0			;counter init
+    init_loop:
+        beq t1, t0, init_continue
+        slli t3, t1, 2				;gsa_index
+        stw zero, GSA(t3)			;clear gsa[i]
+        addi t1, t1, 1				;increment counter
+        jmpi init_loop
 
-    clear_GSA:
-        stw zero,GSA(t0)
-        addi t0,t0,4
-        bne t0,t1,clear_GSA
-
-    addi t0, zero, 4		
+    addi t0, zero, DIR_RIGHT		
 	stw t0, GSA(zero)			
 	stw zero, HEAD_X(zero)			
 	stw zero, HEAD_Y(zero)		
