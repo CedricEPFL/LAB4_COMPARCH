@@ -587,24 +587,24 @@ save_checkpoint:
         addi v0, zero, 0
         ret
 
-        decrementer : 
-            addi t6, t6, -10
-            br save
+    decrementer : 
+        addi t6, t6, -10
+        br save
 
-        multiple_dix : 
-            addi t7, zero, 1
-            ldw t7, CP_VALID(zero)
-            addi v0, zero, 1
-            stw a2, zero, GSA
-            stw a3, zero, CP_GSA
+    multiple_dix : 
+        addi t7, zero, 1
+        ldw t7, CP_VALID(zero)
+        addi v0, zero, 1
+        stw a2, zero, GSA
+        stw a3, zero, CP_GSA
             
-            addi sp, sp, -4
-			stw ra, 0(sp)
-            call memory_copy
-			ldw ra, 0(sp)
-			addi sp, sp, 4
+        addi sp, sp, -4
+		stw ra, 0(sp)
+        call memory_copy
+		ldw ra, 0(sp)
+		addi sp, sp, 4
 
-            ret
+        ret
 
         
 ; END: save_checkpoint
