@@ -53,59 +53,75 @@ addi    sp, zero, LEDS
 ; return values
 ;     This procedure should never return.
 main:
-    ; TODO: Finish this procedure.
+    stw zero,CP_VALID(zero)
 
-    ldw zero,HEAD_X(zero)
-    ldw zero,HEAD_Y(zero)
-    ldw zero,TAIL_X(zero)
-    ldw zero,TAIL_Y(zero)
-    addi t0, zero, DIR_RIGHT
-    stw t0, GSA(zero)
-
-	
-	call clear_leds
-    call create_food
-	call draw_array
-    loop :
+;Initialisation de la partie
+    main_init_game:
         call wait
-        call clear_leds
+        call init_game
+
+;Main de base qui recupere les input et adapte le jeu
+    main_get_input:
+        call wait
         call get_input
+
+        addi t0,zero,BUTTON_CHECKPOINT
+        beq v0,t0,main_cp
+
         call hit_test
+        addi t0,zero,RET_ATE_FOOD
+        beq v0,t0,main_ate_food
 
-        addi t0, zero, RET_COLLISION
-        beq v0, t0, end_game
+        addi t0,zero,RET_COLLISION
+        beq v0,t0,main_init_game
 
-        addi a0,zero,ARG_HUNGRY
+        call move_snake
 
-        addi t0, zero, RET_ATE_FOOD
-        beq v0, t0, ate_food 
+        br display
 
-        display :
-            call move_snake
-            call draw_array
-            br loop
+;Main quand le serpent a mangé un fruit : update le score,create_food
+    main_ate_food:
+        ldw t0, SCORE(zero)
+        addi t0,t0,1
+        stw t0, SCORE(zero)
+        call display_score
+        call move_snake
+        call create_food
 
-        ate_food : 
-            addi a0,zero,ARG_FED
-            call create_food
-            br display
+        call save_checkpoint
 
-        end_game : 
-            call draw_array
-            br end_game
+        beq v0,zero,display
 
+        br display
 
+;Main si le boutton Checkpoint est appuyé
+    main_cp:
+        call restore_checkpoint    
 
-    wait :
-        addi t4, zero, 1    ;t4 = 1
-        slli t5, t4, 22     ;t5 = 2 puissance 22
-        continue : 
-            beq t5, zero, exit
-            sub t5, t5, t4
-            br continue
+        beq v0,zero,main_get_input
+        br blink
 
-        exit : 
-            ret
+;Permet de display le le jeu avec blink qui ne s'execute pas tout le temps
+    blink :
+        call blink_score
+
+    display:
+        call clear_leds
+        call draw_array
+
+    br main_get_input
+
+;Wait procedure pour pouvoir jouer sur le GECKO
+wait :
+    addi t4, zero, 1    ;t4 = 1
+    slli t5, t4, 22     ;t5 = 2 puissance 22
+    continue : 
+        beq t5, zero, exit
+        sub t5, t5, t4
+        br continue
+
+    exit : 
+        ret
     
    
 
@@ -138,6 +154,27 @@ set_pixel:
 
 ; BEGIN: display_score
 display_score:
+    stw zero,SEVEN_SEGS(zero)
+    stw zero,SEVEN_SEGS + 4(zero)
+
+    ldw t0,SCORE(zero)
+    addi t1,zero,0  ;representera les dizaines
+    addi t2,zero,10
+
+    blt t0,t2,show_score
+
+    modulo10:
+        addi t1,t1,1
+        sub t0,t0,t2
+        bge t0,t2,modulo10
+
+    show_score:
+        ldw t1, digit_map(t1)
+        stw t1, SEVEN_SEGS + 8(t1)
+        ldw t0, digit_map(t0)
+        stw t0, SEVEN_SEGS + 12(t0)
+
+    ret    
 
 ; END: display_score
 
@@ -145,6 +182,42 @@ display_score:
 ; BEGIN: init_game
 init_game:
 
+    addi t0,zero,0
+    addi t1,zero,NB_CELLS
+    slli t1,t1,2
+
+    clear_GSA:
+        stw zero,GSA(t0)
+        addi t0,t0,4
+        bne t0,t1,clear_GSA
+
+    addi t0, zero, 4		
+	stw t0, GSA(zero)			
+	stw zero, HEAD_X(zero)			
+	stw zero, HEAD_Y(zero)		
+	stw zero, TAIL_X(zero)			
+	stw zero, TAIL_Y(zero)		
+	stw zero, SCORE(zero)  
+
+    addi sp, sp, -4
+	stw ra, 0(sp)
+    call create_food
+	ldw ra, 0(sp)
+	addi sp, sp, 4
+
+    addi sp, sp, -4
+	stw ra, 0(sp)
+    call clear_leds
+	ldw ra, 0(sp)
+	addi sp, sp, 4
+
+    addi sp, sp, -4
+	stw ra, 0(sp)
+    call draw_array
+	ldw ra, 0(sp)
+	addi sp, sp, 4
+
+    ret
 ; END: init_game
 
 
@@ -154,7 +227,7 @@ create_food:
     ldw t1,RANDOM_NUM(zero)   ;load le nombre random
     and t0,t1,t0    ;recupere la valeur random
 
-    addi t1,zero,96     ;limite du GSA en index
+    addi t1,zero,NB_CELLS     ;limite du GSA en index
 
     bge t0,t1,create_food   ;si depasse la limite, on recommence
     
@@ -178,8 +251,6 @@ hit_test:
     add t3, t2, t3  ;addresse dans le GSA calculee
     slli t3, t3, 2  ;multiplication par 4 car on travaille avec des words dans le GSA
     ldw t4, GSA(t3) ;recupere la valeur de la head
-
-    addi t5, zero, 1          ;t5 = 1
     
     addi t0,zero,DIR_RIGHT
     beq t4,t0,right_hit
@@ -198,12 +269,12 @@ hit_test:
 
     left_hit : 
         beq t1, zero, exit_game_end
-        sub t1,t1,t5
+        addi t1,t1,-1
         br suite_hit_test
 
     up_hit : 
         beq t2, zero, exit_game_end
-        sub t2,t2,t5
+        addi t2,t2,-1
         br suite_hit_test
 
     down_hit : 
@@ -226,7 +297,7 @@ hit_test:
         br exit_game_end
 
     exit_score_increment : 
-        addi v0, zero, 1
+        addi v0, zero, RET_ATE_FOOD
         ret
 
     exit_no_collision : 
@@ -234,7 +305,7 @@ hit_test:
         ret
 
     exit_game_end : 
-        addi v0, zero, 2
+        addi v0, zero, RET_COLLISION
         ret
 
 ; END: hit_test
@@ -333,11 +404,8 @@ get_input:
 
 ; BEGIN: draw_array
 draw_array:
-
-    addi t5, zero, 1
-
-    sub t0,zero,t5
-    sub t1,zero,t5
+    addi t0,zero,-1
+    addi t1,zero,-1
 
     loop_x: ;boucle des x
         addi t0,t0,1
@@ -369,11 +437,8 @@ draw_array:
 
         reset_y :   ;met a jour le y si on arrive au bout d'une colonne 
             addi t5, zero, 1
-            sub t1,zero,t5
+            addi t1,zero,-1
             br loop_x
-
-
-    
 
     end :
         ret
@@ -384,8 +449,6 @@ draw_array:
 
 ; BEGIN: move_snake
 move_snake:
-
-    addi t5, zero, 1
 
     ldw t1,HEAD_X(zero)
     ldw t2,HEAD_Y(zero)
@@ -412,7 +475,7 @@ move_snake:
         br suite
         
     left_head:
-        sub t1,t1,t5
+        addi t1,t1,-1
         stw t1,HEAD_X(zero)
         br suite
     up_head:
@@ -420,7 +483,7 @@ move_snake:
         stw t2,HEAD_Y(zero)
         br suite
     down_head:
-        sub t2,t2,t5
+        addi t2,t2,-1
         stw t2,HEAD_Y(zero)
         br suite
 
@@ -469,7 +532,7 @@ move_snake:
                 ret
                 
             left_tail:
-                sub t1,t1,t5
+                addi t1,t1,-1
                 stw t1,TAIL_X(zero)
                 ret
             up_tail:
@@ -477,12 +540,9 @@ move_snake:
                 stw t2,TAIL_Y(zero)
                 ret
             down_tail:
-                sub t2,t2,t5
+                addi t2,t2,-1
                 stw t2,TAIL_Y(zero)
                 ret
-
-
-        
 
 ; END: move_snake
 
@@ -501,5 +561,36 @@ restore_checkpoint:
 
 ; BEGIN: blink_score
 blink_score:
+    stw zero,SEVEN_SEGS(zero)
+    stw zero,SEVEN_SEGS + 4(zero)
+    stw zero,SEVEN_SEGS + 8(zero)
+    stw zero,SEVEN_SEGS + 12(zero)
+
+    addi sp, sp, -4
+	stw ra, 0(sp)
+    call wait
+	ldw ra, 0(sp)
+	addi sp, sp, 4
+
+    addi sp, sp, -4
+	stw ra, 0(sp)
+    call display_score
+	ldw ra, 0(sp)
+	addi sp, sp, 4
+
+    ret
 
 ; END: blink_score
+
+
+digit_map:
+	.word 0xFC ; 0
+	.word 0x60 ; 1
+	.word 0xDA ; 2
+	.word 0xF2 ; 3
+	.word 0x66 ; 4
+	.word 0xB6 ; 5
+	.word 0xBE ; 6
+	.word 0xE0 ; 7
+	.word 0xFE ; 8
+	.word 0xF6 ; 9
